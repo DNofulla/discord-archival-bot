@@ -12,7 +12,6 @@ class MyClient(discord.Client):
         print(f'Logged on as {self.user}!')
         self.archive_deleted_channel = discord.utils.get(self.get_all_channels(), name='archived-deleted')
         self.archive_edited_channel = discord.utils.get(self.get_all_channels(), name='archived-edits')
-        self.channels_to_ignore = ['1067167101086863500', '1067254426831687731']
 
     async def on_message(self, message):
         print(f'Message from {message.author}: {message.content}')
@@ -36,13 +35,16 @@ class MyClient(discord.Client):
                     time.sleep(0.5)
 
     async def on_message_edit(self, before, after):
+        if before.content == after.content:
+            return
+
         embed = discord.Embed(title="Edited Message", color=0xff0000)
         embed.add_field(name="Author", value=f"{before.author.mention}")
         embed.add_field(name="Channel", value=f"<#{before.channel.id}>")
         embed.add_field(name="Message ID", value=f"<https://discordapp.com/channels/{before.guild.id}/{before.channel.id}/{before.id}>", inline=False)
         embed.add_field(name="Original Message", value=before.content, inline=False)
         embed.add_field(name="Edited Message", value=after.content, inline=False)
-        await self.archive_deleted_channel.send(embed=embed)
+        await self.archive_edited_channel.send(embed=embed)
         
 
             
